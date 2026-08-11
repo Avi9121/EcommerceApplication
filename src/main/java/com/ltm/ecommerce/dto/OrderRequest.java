@@ -1,6 +1,7 @@
 package com.ltm.ecommerce.dto;
 
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 
 public class OrderRequest {
@@ -10,11 +11,13 @@ public class OrderRequest {
 	@NotBlank(message = "Product name is required")
 	private String productName;
 
+	@NotNull(message="Quantity is required")
 	@Positive(message = "Quantity must be greater than 0")
-	private int quantity;
+	private Integer quantity;
 
+	@NotNull(message = "Amount is required")
 	@Positive(message = "Amount must be greater than 0")
-	private double amount;
+	private Double amount;
 
 	@NotBlank(message = "Order status is required")
 	private String orderStatus;

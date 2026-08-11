@@ -33,7 +33,7 @@ public class GlobalExceptionHandler {
 	@ExceptionHandler(Exception.class)
 	@ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
 	public ErrorResponse handleGenericException(Exception ex) {
-		return new ErrorResponse(500, "Something went wrong");
+		return new ErrorResponse(500, "Something went wrong",null);
 	}
 	
 	
