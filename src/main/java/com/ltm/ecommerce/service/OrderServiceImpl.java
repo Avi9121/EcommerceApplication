@@ -3,6 +3,7 @@ package com.ltm.ecommerce.service;
 import org.springframework.stereotype.Service;
 
 import com.ltm.ecommerce.beans.OrderBean;
+import com.ltm.ecommerce.config.AppProperties;
 import com.ltm.ecommerce.dto.OrderRequest;
 import com.ltm.ecommerce.dto.OrderResponse;
 import com.ltm.ecommerce.entity.Order;
@@ -12,17 +13,21 @@ import com.ltm.ecommerce.repository.OrderRepository;
 @Service
 public class OrderServiceImpl implements OrderService {
 
+	public final AppProperties properties;
+
 	public final OrderRepository orderRepository;
 
-	public OrderServiceImpl(OrderRepository repository) {
-		this.orderRepository = repository;
+	public OrderServiceImpl(OrderRepository orderRepository, AppProperties properties) {
+
+		this.orderRepository = orderRepository;
+		this.properties = properties;
 	}
 
 	@Override
 	public OrderResponse getOrder(int id) {
 
-		Order order = orderRepository.findById(id).
-				orElseThrow(() -> new OrderNotFoundException ("Order not found with id :"+id));
+		Order order = orderRepository.findById(id)
+				.orElseThrow(() -> new OrderNotFoundException("Order not found with id :" + id));
 
 		OrderResponse response = new OrderResponse();
 
@@ -68,9 +73,9 @@ public class OrderServiceImpl implements OrderService {
 	public OrderResponse updateOrder(int id, OrderRequest request) {
 
 		// 1. Find existing order
-		Order order = orderRepository.findById(id).
-				orElseThrow(() -> new OrderNotFoundException ("Order not found with id :"+id));
-		
+		Order order = orderRepository.findById(id)
+				.orElseThrow(() -> new OrderNotFoundException("Order not found with id :" + id));
+
 		// 2. Update the existing entity
 		order.setCustomerName(request.getCustomerName());
 		order.setProductName(request.getProductName());
@@ -96,8 +101,9 @@ public class OrderServiceImpl implements OrderService {
 
 	@Override
 	public void deleteOrder(int id) {
-		orderRepository.deleteById(id);;
-		
+		orderRepository.deleteById(id);
+		;
+
 	}
 
 }

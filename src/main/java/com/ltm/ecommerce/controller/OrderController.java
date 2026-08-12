@@ -1,5 +1,6 @@
 package com.ltm.ecommerce.controller;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.*;
 
 import com.ltm.ecommerce.beans.OrderBean;
