@@ -1,9 +1,7 @@
 package com.ltm.ecommerce.controller;
 
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.*;
 
-import com.ltm.ecommerce.beans.OrderBean;
 import com.ltm.ecommerce.dto.OrderRequest;
 import com.ltm.ecommerce.dto.OrderResponse;
 import com.ltm.ecommerce.service.OrderService;
