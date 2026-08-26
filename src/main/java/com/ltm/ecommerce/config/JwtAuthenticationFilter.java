@@ -44,7 +44,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
                 String token = authHeader.substring(7);
 
-                String username = jwtService.extractUsername(token);
+                String username =
+                        jwtService.extractUsername(token);
 
                 UserDetails userDetails =
                         userDetailsService.loadUserByUsername(username);
@@ -61,10 +62,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
             } catch (Exception e) {
 
-                // JWT is invalid or expired.
-                // No authentication will be set.
-                e.printStackTrace();
-
+                // Invalid or expired JWT.
+                // Authentication will not be set.
             }
         }
 

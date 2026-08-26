@@ -4,7 +4,7 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-
+import org.springframework.security.core.Authentication;
 import com.ltm.ecommerce.config.JwtService;
 import com.ltm.ecommerce.dto.LoginRequest;
 import com.ltm.ecommerce.dto.LoginResponse;
@@ -56,12 +56,32 @@ public class UserServiceImpl implements UserService {
 
 	@Override
 	public LoginResponse login(LoginRequest request) {
-		// TODO Auto-generated method stub
-		authenticationManager
-				.authenticate(new UsernamePasswordAuthenticationToken(request.getUsername(), request.getPassword()));
 
-		String token = jwtService.generateToken(request.getUsername());
-		return new LoginResponse("Login successful", request.getUsername(),token);
+	    Authentication authentication =
+	            authenticationManager.authenticate(
+	                    new UsernamePasswordAuthenticationToken(
+	                            request.getUsername(),
+	                            request.getPassword()
+	                    )
+	            );
+
+	    String role =
+	            authentication.getAuthorities()
+	                    .iterator()
+	                    .next()
+	                    .getAuthority();
+
+	    String token =
+	            jwtService.generateToken(
+	                    request.getUsername(),
+	                    role
+	            );
+
+	    return new LoginResponse(
+	            "Login successful",
+	            request.getUsername(),
+	            token
+	    );
 	}
 
 }

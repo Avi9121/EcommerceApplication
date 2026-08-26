@@ -2,6 +2,8 @@ package com.ltm.ecommerce.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
+
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
@@ -10,63 +12,80 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 import com.ltm.ecommerce.service.CustomUserDetailsService;
 
-import jakarta.servlet.http.HttpServletResponse;
-
-import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 @Configuration
 public class SecurityConfig {
-	private final CustomUserDetailsService userDetailsService;
-	private final JwtAuthenticationFilter jwtAuthenticationFilter;
 
-	public SecurityConfig(CustomUserDetailsService userDetailsService,JwtAuthenticationFilter jwtAuthenticationFilter) {
-		this.userDetailsService = userDetailsService;
-		this.jwtAuthenticationFilter=jwtAuthenticationFilter;
-	}
+    private final CustomUserDetailsService userDetailsService;
+    private final JwtAuthenticationFilter jwtAuthenticationFilter;
 
-	@Bean
-	public PasswordEncoder passwordEncoder() {
-		return new BCryptPasswordEncoder();
-	}
+    public SecurityConfig(
+            CustomUserDetailsService userDetailsService,
+            JwtAuthenticationFilter jwtAuthenticationFilter) {
 
-	@Bean
-	public AuthenticationProvider authenticationProvider() {
+        this.userDetailsService = userDetailsService;
+        this.jwtAuthenticationFilter = jwtAuthenticationFilter;
+    }
 
-		DaoAuthenticationProvider provider = new DaoAuthenticationProvider(userDetailsService);
-		provider.setPasswordEncoder(passwordEncoder());
+    @Bean
+    public PasswordEncoder passwordEncoder() {
 
-		return provider;
-	}
+        return new BCryptPasswordEncoder();
+    }
 
-	@Bean
-	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+    @Bean
+    public AuthenticationProvider authenticationProvider() {
 
-		http.csrf(csrf -> csrf.disable())
-				.authorizeHttpRequests(
-						auth -> auth.requestMatchers("/users/register", "/users/login")
-						.permitAll()
-						.anyRequest()
-						.authenticated()
-						).exceptionHandling(exception ->
-					    exception.authenticationEntryPoint(
-					            (request, response, authException) ->
-					                response.sendError(
-					                    HttpServletResponse.SC_UNAUTHORIZED,
-					                    "Unauthorized"
-					                )
-					        )
-					    )
-				      .addFilterBefore(jwtAuthenticationFilter,UsernamePasswordAuthenticationFilter.class
-					);
+        DaoAuthenticationProvider provider =
+                new DaoAuthenticationProvider(userDetailsService);
 
-		return http.build();
-	}
-	@Bean
-	public AuthenticationManager authenticationManager(
-	        AuthenticationConfiguration configuration) throws Exception {
+        provider.setPasswordEncoder(passwordEncoder());
 
-	    return configuration.getAuthenticationManager();
-	}
+        return provider;
+    }
+
+    @Bean
+    public SecurityFilterChain securityFilterChain(
+            HttpSecurity http) throws Exception {
+
+        http
+            .csrf(csrf -> csrf.disable())
+
+            .authorizeHttpRequests(
+                auth -> auth
+
+                    .requestMatchers(
+                            "/users/register",
+                            "/users/login"
+                    )
+                    .permitAll()
+
+                    .requestMatchers(
+                            HttpMethod.DELETE,
+                            "/orders/**"
+                    )
+                    .hasRole("ADMIN")
+
+                    .anyRequest()
+                    .authenticated()
+            )
+
+            .addFilterBefore(
+                    jwtAuthenticationFilter,
+                    UsernamePasswordAuthenticationFilter.class
+            );
+
+        return http.build();
+    }
+
+    @Bean
+    public AuthenticationManager authenticationManager(
+            AuthenticationConfiguration configuration)
+            throws Exception {
+
+        return configuration.getAuthenticationManager();
+    }
 }
