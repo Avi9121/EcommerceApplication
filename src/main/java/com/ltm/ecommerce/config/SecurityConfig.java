@@ -13,12 +13,17 @@ import org.springframework.security.web.SecurityFilterChain;
 
 import com.ltm.ecommerce.service.CustomUserDetailsService;
 
+import jakarta.servlet.http.HttpServletResponse;
+
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 @Configuration
 public class SecurityConfig {
 	private final CustomUserDetailsService userDetailsService;
+	private final JwtAuthenticationFilter jwtAuthenticationFilter;
 
-	public SecurityConfig(CustomUserDetailsService userDetailsService) {
+	public SecurityConfig(CustomUserDetailsService userDetailsService,JwtAuthenticationFilter jwtAuthenticationFilter) {
 		this.userDetailsService = userDetailsService;
+		this.jwtAuthenticationFilter=jwtAuthenticationFilter;
 	}
 
 	@Bean
@@ -40,9 +45,21 @@ public class SecurityConfig {
 
 		http.csrf(csrf -> csrf.disable())
 				.authorizeHttpRequests(
-						auth -> auth.requestMatchers("/users/register", "/users/login").permitAll().anyRequest().authenticated())
-				.httpBasic(httpBasic -> {
-				});
+						auth -> auth.requestMatchers("/users/register", "/users/login")
+						.permitAll()
+						.anyRequest()
+						.authenticated()
+						).exceptionHandling(exception ->
+					    exception.authenticationEntryPoint(
+					            (request, response, authException) ->
+					                response.sendError(
+					                    HttpServletResponse.SC_UNAUTHORIZED,
+					                    "Unauthorized"
+					                )
+					        )
+					    )
+				      .addFilterBefore(jwtAuthenticationFilter,UsernamePasswordAuthenticationFilter.class
+					);
 
 		return http.build();
 	}
