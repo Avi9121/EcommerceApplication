@@ -58,8 +58,10 @@ public class SecurityConfig {
                 auth -> auth
 
                     .requestMatchers(
-                            "/users/register",
-                            "/users/login"
+                    		 "/users/register",
+                    	        "/users/login",
+                    	        "/swagger-ui/**",
+                    	        "/v3/api-docs/**"
                     )
                     .permitAll()
 
